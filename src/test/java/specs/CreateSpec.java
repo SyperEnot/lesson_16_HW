@@ -14,12 +14,8 @@ import static io.restassured.http.ContentType.JSON;
 public class CreateSpec {
     public static RequestSpecification createUserRequestSpec = with()
             .filter(withCustomTemplates())
-            .log().uri()
-            .log().body()
-            .log().headers()
             .contentType(JSON)
-            .baseUri("https://reqres.in")
-            .basePath("/api/users");
+            .log().all();
 
     public static ResponseSpecification createUserResponseSpec = new ResponseSpecBuilder()
             .expectStatusCode(201)

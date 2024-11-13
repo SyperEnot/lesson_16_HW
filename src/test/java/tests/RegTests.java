@@ -7,7 +7,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.is;
 
-public class RegTests {
+public class RegTests extends TestBase {
 
     @Test
     void successfulRegisterTest() {
@@ -19,7 +19,7 @@ public class RegTests {
                 .log().uri()
 
                 .when()
-                .post("https://reqres.in/api/register")
+                .post("/register")
 
                 .then()
                 .log().status()
@@ -39,7 +39,7 @@ public class RegTests {
                 .log().uri()
 
                 .when()
-                .post("https://reqres.in/api/users")
+                .post("/users")
 
                 .then()
                 .log().status()
@@ -58,7 +58,7 @@ public class RegTests {
                 .log().uri()
 
                 .when()
-                .post("https://reqres.in/api/register")
+                .post("/register")
 
                 .then()
                 .log().status()
@@ -77,7 +77,7 @@ public class RegTests {
                 .log().uri()
 
                 .when()
-                .post("https://reqres.in/api/register")
+                .post("/register")
 
                 .then()
                 .log().status()
@@ -96,7 +96,7 @@ public class RegTests {
                 .log().uri()
 
                 .when()
-                .post("https://reqres.in/api/register")
+                .post("/register")
 
                 .then()
                 .log().status()

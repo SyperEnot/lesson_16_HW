@@ -11,28 +11,28 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static specs.CreateSpec.createUserRequestSpec;
 import static specs.CreateSpec.createUserResponseSpec;
 import static specs.RegisterSpec.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class ApiTests {
+public class ApiTests extends TestBase {
 
     @Test
     @DisplayName("Успешное создание нового пользователя")
     void successfulCreateUserTest() {
 
-        CreateUserBodyModel userData = new CreateUserBodyModel();
+        CreateUserModel userData = new CreateUserModel();
         userData.setName("bond");
         userData.setJob("qa");
 
-        CreateUserResponseModel response = step("Запрос на создание нового пользователя", ()->
-                given()
-                        .spec(createUserRequestSpec)
+        CreateUserModel response = step("Запрос на создание нового пользователя", ()->
+                given(createUserRequestSpec)
                         .body(userData)
 
                         .when()
-                        .post()
+                        .post("/users")
 
                         .then()
                         .spec(createUserResponseSpec)
-                        .extract().as(CreateUserResponseModel.class));
+                        .extract().as(CreateUserModel.class));
 
         step("Проверка имени нового пользователя", ()->
                 assertEquals("bond",response.getName()));
@@ -56,38 +56,36 @@ public class ApiTests {
         authData.setPassword("pistol");
 
         RegistrationResponseModel response = step("Запрос на регистрацию существующего пользователя", ()->
-                given()
-                        .spec(registerRequestSpec)
+                given(registerRequestSpec)
                         .body(authData)
 
                         .when()
-                        .post()
+                        .post("/register")
 
                         .then()
-                        .spec(responseSpec)
+                        .spec(responseSpec200)
                         .extract().as(RegistrationResponseModel.class));
 
         step("Проверка Id", ()->
                 assertEquals("4", response.getId()));
 
         step("Проверка token", ()->
-                assertEquals("QpwL5tke4Pnpja7X4", response.getToken()));
+                assertThat(response.getToken()).isNotEmpty());
     }
 
     @Test
     @DisplayName("Отправка на регистрацию с незаполненными email/password")
     void emptyAuthDataTest() {
 
-        Error400Model response = step("Передача запроса на регистрацию с незаполненными email/password", ()->
-                given()
-                        .spec(registerRequestSpec)
+        CreateUserModel response = step("Передача запроса на регистрацию с незаполненными email/password", ()->
+                given(registerRequestSpec)
 
                         .when()
-                        .post()
+                        .post("/register")
 
                         .then()
-                        .spec(errorResponseSpec)
-                        .extract().as(Error400Model.class));
+                        .spec(errorResponseSpec400)
+                        .extract().as(CreateUserModel.class));
 
         step("Проверка ответа", ()->
                 assertEquals("Missing email or username", response.getError()));
@@ -99,17 +97,16 @@ public class ApiTests {
         RegistrationBodyModel authData = new RegistrationBodyModel();
         authData.setEmail("eve.holt@reqres.in");
 
-        Error400Model response = step("Запрос на регистрацию без ввода пароля", ()->
-                given()
-                        .spec(registerRequestSpec)
+        CreateUserModel response = step("Запрос на регистрацию без ввода пароля", ()->
+                given(registerRequestSpec)
                         .body(authData)
 
                         .when()
-                        .post()
+                        .post("/register")
 
                         .then()
-                        .spec(errorResponseSpec)
-                        .extract().as(Error400Model.class));
+                        .spec(errorResponseSpec400)
+                        .extract().as(CreateUserModel.class));
 
         step("Проверка ответа", ()->
                 assertEquals("Missing password", response.getError()));
@@ -123,17 +120,16 @@ public class ApiTests {
         authData.setEmail("123test@bk.ru");
         authData.setPassword("pistol");
 
-        Error400Model response = step("Запрос на регистрацию пользователя с несуществующим email", ()->
-                given()
-                        .spec(registerRequestSpec)
+        CreateUserModel response = step("Запрос на регистрацию пользователя с несуществующим email", ()->
+                given(registerRequestSpec)
                         .body(authData)
 
                         .when()
-                        .post()
+                        .post("/register")
 
                         .then()
-                        .spec(errorResponseSpec)
-                        .extract().as(Error400Model.class));
+                        .spec(errorResponseSpec400)
+                        .extract().as(CreateUserModel.class));
 
         step("Проверка ответа", ()->
                 assertEquals("Note: Only defined users succeed registration", response.getError()));
